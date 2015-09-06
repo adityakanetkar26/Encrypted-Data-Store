@@ -2,7 +2,10 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (QApplication, QWidget, 
 			QToolTip, QPushButton, 
-			QMessageBox, QDesktopWidget)
+			QMessageBox, QDesktopWidget, 
+			QHBoxLayout, QVBoxLayout, 
+			QGridLayout, QLineEdit, 
+			QTextEdit, QLabel)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QCoreApplication
 
@@ -18,17 +21,38 @@ class HomeScreen(QWidget):
 
 		QToolTip.setFont(QFont('SansSerif', 10))
 		
-		encryptBtn = QPushButton('Encrypt', self)
+		uploadLabel = QLabel("Encrypt and Upload", self)
+		uploadFilePath = QLineEdit(self)
+		
+		encryptBtn = QPushButton('Encrypt and Upload', self)
 		encryptBtn.setToolTip('Encrypt and upload the file. ')
 		encryptBtn.resize(encryptBtn.sizeHint())
-		encryptBtn.move(50, 50)
+
+		decryptLabel = QLabel("Choose which file to decrypt: ", self)
+		decryptBtn = QPushButton('Decrypt', self)
+		decryptBtn.setToolTip('Decrypt the selected file. ')
+		decryptBtn.resize(decryptBtn.sizeHint())
 		
 		quitBtn = QPushButton('Quit', self)
 		quitBtn.setToolTip('Exit the application. ')
 		quitBtn.clicked.connect(QCoreApplication.instance().quit)
 		quitBtn.resize(quitBtn.sizeHint())
 
+		gridLayout = QGridLayout()
+		gridLayout.setSpacing(10)
+		
+		gridLayout.addWidget(uploadLabel, 1, 0)
+		gridLayout.addWidget(uploadFilePath, 1, 1)
+		gridLayout.addWidget(encryptBtn, 2, 1)
+		
+		gridLayout.addWidget(decryptLabel, 3, 0)
+		gridLayout.addWidget(decryptBtn, 3, 1)
+
+		gridLayout.addWidget(quitBtn, 5, 1)
+		
+		self.setLayout(gridLayout)
 		self.setWindowState(QtCore.Qt.WindowMaximized)
+		#self.setGeometry(300, 300, 300, 300)
 		self.show()
 
 	#Re-implementation of the closeEvent() event handler. 
