@@ -18,7 +18,9 @@ class HomeScreen(QWidget):
 
 	#Initial buttons that should be present on the screen when the application is started. 
 	def initUI(self):
-		e = EncryptFile("/home/aditya/SpcPrblm/Encrypted-Data-Store/Stats.txt")
+		filePath = "/home/aditya/SpcPrblm/Encrypted-Data-Store/Stats.txt"
+		keyPath = "/home/aditya/SpcPrblm/Encrypted-Data-Store/public_key.pem"
+		e = EncryptFile(filePath, keyPath)
 		e.encrypt()
 		self.setWindowTitle("Encrypted Data Store")
 
