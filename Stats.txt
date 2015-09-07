@@ -1,0 +1,29 @@
+File Size: 996 bytes
+
+New File:
+Before Encryption: 
+1429804414
+After Encryption: 
+1429804449
+Time taken = 49 - 14 = 35 sec
+
+Same file again: 
+Before Encryption: 
+1429804663
+After Encryption, without uploading again: 
+1429804664
+Time taken = 64 - 63 = 1 sec
+
+File with changed chunks: 
+Before Encryption: 
+1429804787
+After Encryption: 
+1429804812
+Time taken = 812 - 787 = 25 sec
+
+Decryption: 
+Before Decryption: 
+1429805277
+After Decryption: 
+1429805315
+Time taken = 315 - 277 = 38 sec

@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
 			QTextEdit, QLabel)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QCoreApplication
+from encryptFile import EncryptFile
 
 class HomeScreen(QWidget):
 	#Constructor
@@ -17,6 +18,8 @@ class HomeScreen(QWidget):
 
 	#Initial buttons that should be present on the screen when the application is started. 
 	def initUI(self):
+		e = EncryptFile("/home/aditya/SpcPrblm/Encrypted-Data-Store/Stats.txt")
+		e.encrypt()
 		self.setWindowTitle("Encrypted Data Store")
 
 		QToolTip.setFont(QFont('SansSerif', 10))
