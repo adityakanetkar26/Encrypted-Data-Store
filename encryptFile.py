@@ -1,10 +1,14 @@
 import os
+from Crypto.Cipher import AES
+from Crypto.PublicKey import RSA
+
 class EncryptFile():
 	__filePath = None
 	__fileName = None
 	__padCount = 0
 	__ptString = None
 	__ptChunks = None
+	__ctChunks = None
 
 	#Constructor
 	def __init__(self, fPath):
@@ -12,6 +16,7 @@ class EncryptFile():
 		self.__fileName = os.path.basename(fPath)
 		self.__padCount = 0
 		self.__ptChunks = []
+		self.__ctChunks = []
 	
 	#Encryption Method
 	def encrypt(self):
@@ -38,4 +43,16 @@ class EncryptFile():
 		tempStr = self.__ptString
 		while tempStr:
 			self.__ptChunks.append(tempStr[:64])
-			tempStr = tempStr[64:]	
+			tempStr = tempStr[64:]
+
+	def __encryptChunks(self):
+		for chunk in self.__ptChunks:
+			publicKey, privateKey = self.__generateRSAKeyPair()
+			
+
+	
+	def __generateRSAKeyPair(self):
+		RSAKey = RSA.generate(2048)
+		publicKey = RSAKey.publickey().exportKey()
+		privateKey = RSAKey.exportKey()
+		return publicKey, privateKey
