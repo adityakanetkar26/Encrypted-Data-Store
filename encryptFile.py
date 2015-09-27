@@ -5,7 +5,7 @@ from Crypto import Random
 
 class EncryptFile():
 	
-	#Private methods
+	#Private variables
 	__filePath = None
 	__fileName = None
 	__padCount = 0
@@ -28,6 +28,7 @@ class EncryptFile():
 		self.__readFile()
 		self.__splitFile()
 		self.__encryptChunks()
+		return self.__ctChunks
 
 	#Private method to read the file		
 	def __readFile(self):
@@ -67,5 +68,4 @@ class EncryptFile():
 			encryptedInfo["encSessKey"] = base64.b64encode(sessCipherText)
 			encryptedInfo["cipherText"] = base64.b64encode(cipherText)
 			self.__ctChunks.append(encryptedInfo)
-			print encryptedInfo
-			
+			print encryptedInfo	
