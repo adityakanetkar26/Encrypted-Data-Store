@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
 			QGridLayout, QLineEdit, 
 			QTextEdit, QLabel, 
 			QFileDialog, QAction, 
-			QMainWindow)
+			QMainWindow, QErrorMessage)
 from PyQt5.QtGui import (QFont, QIcon)
 from PyQt5.QtCore import QCoreApplication
 from encryptFile import EncryptFile
@@ -15,9 +15,6 @@ from decryptFile import DecryptFile
 
 class HomeScreen(QWidget):
 
-	#Private Variables
-	__filePath = None
-	__publicKeyPath = None
 	#Constructor
 	def __init__(self):
 	        super(HomeScreen, self).__init__() 
@@ -115,7 +112,6 @@ class HomeScreen(QWidget):
 	#Event Handler for browsing file to encrypt
 	def browseFileBtnClick(self):
 		fileObj = QFileDialog.getOpenFileName(self, 'Open File', '.')
-		__filePath = fileObj[0]
 
 		if fileObj[0]:
 			self.uploadFilePath.setText(fileObj[0])
@@ -123,7 +119,6 @@ class HomeScreen(QWidget):
 	#Event handler for browsing public key
         def browsePublicKeyBtnClick(self):
                 fileObj = QFileDialog.getOpenFileName(self, 'Select Public Key', '.')
-                __filePath = fileObj[0]
 
                 if fileObj[0]:
                         self.uploadPublicKeyPath.setText(fileObj[0])
@@ -131,14 +126,17 @@ class HomeScreen(QWidget):
 	#Event handler to select public key
 	def setPublicKeyPath(self):
 		print self.uploadPublicKeyPath.text()
-		self.__publicKeyPath = self.uploadPublicKeyPath.text()
 
 	#Event handler for encrypting file
 	def encryptAndUploadFile(self):
-		print self.uploadFilePath.text()
-		self.__filePath = self.uploadFilePath.text()
-		e = EncryptFile(self.__filePath, self.__publicKeyPath)
-                t = e.encrypt()
+		if self.uploadPublicKeyPath.text() == "" or self.uploadFilePath.text() == "":
+			errorMsg = QErrorMessage(self)
+			errorMsg.showMessage("Both the values should represent actual files. ")
+		else:
+			print self.uploadFilePath
+			print self.uploadPublicKeyPath				
+			e = EncryptFile(self.uploadFilePath.text(), self.uploadPublicKeyPath.text())
+                	t = e.encrypt()
 	
 
 if __name__ == '__main__':
