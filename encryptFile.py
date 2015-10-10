@@ -2,6 +2,7 @@ import os, base64
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto import Random
+from Crypto.Hash import SHA256
 
 class EncryptFile():
 	
@@ -28,6 +29,7 @@ class EncryptFile():
 		self.__readFile()
 		self.__splitFile()
 		self.__encryptChunks()
+		self.__populateFilesAndManifest()
 		return self.__ctChunks
 
 	#Private method to read the file		
@@ -52,6 +54,7 @@ class EncryptFile():
 			self.__ptChunks.append(tempStr[:64])
 			tempStr = tempStr[64:]
 
+	#Method to encrypt chunks
 	def __encryptChunks(self):
 		
 		for chunk in self.__ptChunks:
@@ -68,4 +71,33 @@ class EncryptFile():
 			encryptedInfo["encSessKey"] = base64.b64encode(sessCipherText)
 			encryptedInfo["cipherText"] = base64.b64encode(cipherText)
 			self.__ctChunks.append(encryptedInfo)
-			print encryptedInfo	
+			print encryptedInfo
+
+	#Method to populate the manifest file
+	def __populateFilesAndManifest(self):
+		workingDirectory = os.getcwd()
+		storeDirectory = os.path.join(workingDirectory, "Store")
+		manifestPath = os.path.join(workingDirectory, "manifest.txt")
+		manifestWrite = open(manifestPath, "a")
+		for chunk in self.__ctChunks:
+			hashInput = chunk["iv"] + chunk["encSessKey"] + chunk["cipherText"]
+			hashObj = SHA256.new()
+			hashObj.update(hashInput)
+			encFileName = hashObj.hexdigest() + ".txt"
+			encFilePath = os.path.join(storeDirectory, encFileName)
+			
+			fileWrite = open(encFilePath, "w")
+			fileWrite.write("IV\n")
+			fileWrite.write(chunk["iv"] + "\n")
+						
+			fileWrite.write("Encrypted Session Key\n")
+			fileWrite.write(chunk["encSessKey"] + "\n")
+			
+			fileWrite.write("CipherText\n")
+			fileWrite.write(chunk["cipherText"] + "\n")
+		
+			fileWrite.close()
+			
+			manifestWrite.write(hashObj.hexdigest() + "\n")
+
+		manifestWrite.close()	
