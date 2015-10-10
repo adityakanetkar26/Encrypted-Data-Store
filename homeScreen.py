@@ -5,13 +5,18 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
 			QMessageBox, QDesktopWidget, 
 			QHBoxLayout, QVBoxLayout, 
 			QGridLayout, QLineEdit, 
-			QTextEdit, QLabel)
-from PyQt5.QtGui import QFont
+			QTextEdit, QLabel, 
+			QFileDialog, QAction, 
+			QMainWindow)
+from PyQt5.QtGui import (QFont, QIcon)
 from PyQt5.QtCore import QCoreApplication
 from encryptFile import EncryptFile
 from decryptFile import DecryptFile
 
 class HomeScreen(QWidget):
+
+	#Private Variables
+	__filePath = None
 	#Constructor
 	def __init__(self):
 	        super(HomeScreen, self).__init__() 
@@ -32,36 +37,37 @@ class HomeScreen(QWidget):
 
 		QToolTip.setFont(QFont('SansSerif', 10))
 		
-		uploadLabel = QLabel("Encrypt and Upload", self)
-		uploadFilePath = QLineEdit(self)
-		
-		encryptBtn = QPushButton('Encrypt and Upload', self)
-		encryptBtn.setToolTip('Encrypt and upload the file. ')
-		encryptBtn.resize(encryptBtn.sizeHint())
+		self.uploadLabel = QLabel("Encrypt and Upload", self)
+		self.uploadFilePath = QLineEdit(self)
+	
+		self.browseBtn = QPushButton("Browse", self)
+		self.browseBtn.clicked.connect(self.browseBtnClick)
+	
+		self.encryptBtn = QPushButton('Encrypt and Upload', self)
+		self.encryptBtn.setToolTip('Encrypt and upload the file. ')
 
-		decryptLabel = QLabel("Choose which file to decrypt: ", self)
-		decryptBtn = QPushButton('Decrypt', self)
-		decryptBtn.setToolTip('Decrypt the selected file. ')
-		decryptBtn.resize(decryptBtn.sizeHint())
+		self.decryptLabel = QLabel("Choose which file to decrypt: ", self)
+		self.decryptBtn = QPushButton('Decrypt', self)
+		self.decryptBtn.setToolTip('Decrypt the selected file. ')
 		
-		quitBtn = QPushButton('Quit', self)
-		quitBtn.setToolTip('Exit the application. ')
-		quitBtn.clicked.connect(QCoreApplication.instance().quit)
-		quitBtn.resize(quitBtn.sizeHint())
+		self.quitBtn = QPushButton('Quit', self)
+		self.quitBtn.setToolTip('Exit the application. ')
+		self.quitBtn.clicked.connect(QCoreApplication.instance().quit)
 
-		gridLayout = QGridLayout()
-		gridLayout.setSpacing(10)
+		self.gridLayout = QGridLayout()
+		self.gridLayout.setSpacing(10)
 		
-		gridLayout.addWidget(uploadLabel, 1, 0)
-		gridLayout.addWidget(uploadFilePath, 1, 1)
-		gridLayout.addWidget(encryptBtn, 2, 1)
+		self.gridLayout.addWidget(self.uploadLabel, 1, 0)
+		self.gridLayout.addWidget(self.uploadFilePath, 1, 1)
+		self.gridLayout.addWidget(self.browseBtn, 2, 0)
+		self.gridLayout.addWidget(self.encryptBtn, 2, 1)
 		
-		gridLayout.addWidget(decryptLabel, 3, 0)
-		gridLayout.addWidget(decryptBtn, 3, 1)
+		self.gridLayout.addWidget(self.decryptLabel, 3, 0)
+		self.gridLayout.addWidget(self.decryptBtn, 3, 1)
 
-		gridLayout.addWidget(quitBtn, 5, 1)
+		self.gridLayout.addWidget(self.quitBtn, 5, 1)
 		
-		self.setLayout(gridLayout)
+		self.setLayout(self.gridLayout)
 		self.setWindowState(QtCore.Qt.WindowMaximized)
 		#self.setGeometry(300, 300, 300, 300)
 		self.show()
@@ -86,6 +92,13 @@ class HomeScreen(QWidget):
 		
 		mainWindowGeometry.moveCenter(centerPoint)
 		self.move(mainWindowGeometry.topLeft())		
+
+	def browseBtnClick(self):
+		fileObj = QFileDialog.getOpenFileName(self, 'Open File', '.')
+		__filePath = fileObj[0]
+
+		if fileObj[0]:
+			self.uploadFilePath.setText(fileObj[0])
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
