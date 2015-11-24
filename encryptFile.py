@@ -124,5 +124,7 @@ class EncryptFile():
 			file.SetContentFile(encFilePath)
 			file.Upload()
 
+			os.remove(encFilePath)
+			
 		manifestWrite.write("\n")
 		manifestWrite.close()
