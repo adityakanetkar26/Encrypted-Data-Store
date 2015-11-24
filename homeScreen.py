@@ -59,9 +59,11 @@ class HomeScreen(QWidget):
 		self.browsePrivateKeyBtn = QPushButton("Browse", self)
 		self.browsePrivateKeyBtn.clicked.connect(self.browsePrivateKeyBtnClick)
 		self.decryptFileList = QComboBox(self)
+		self.decryptFileList.activated[str].connect(self.onActivated)
 		self.populateFileNames()
 		self.decryptBtn = QPushButton('Decrypt', self)
 		self.decryptBtn.setToolTip('Decrypt the selected file. ')
+		self.decryptBtn.clicked.connect(self.downloadAndDecryptFile)
 		
 		#GUI for Quitting Application
 		self.quitBtn = QPushButton('Quit', self)
@@ -136,7 +138,7 @@ class HomeScreen(QWidget):
 		if fileObj[0]:
 			self.uploadPrivateKeyPath.setText(fileObj[0])
 
-	#Event handler for encrypting file
+	#Event handler for encrypting file and uploading chunks
 	def encryptAndUploadFile(self):
 		if self.uploadPublicKeyPath.text() == "" or self.uploadFilePath.text() == "":
 			errorMsg = QErrorMessage(self)
@@ -176,10 +178,27 @@ class HomeScreen(QWidget):
 		filesList = open(adminStoreFiles, "r")
 		fileLines = filesList.readlines()
 		
+		self.decryptFileList.addItem("")
 		for fileName in fileLines:
 			fileName = fileName[:-1]
 			self.decryptFileList.addItem(fileName)
-			
+
+	#Event handler for downloading chunks and decrypting file
+	def downloadAndDecryptFile(self):
+
+		if not hasattr(self, "selectedFileName"):
+			errorMsg = QErrorMessage(self)
+			errorMsg.showMessage("Select a file. ")
+		else:
+			if self.uploadPrivateKeyPath.text() == "":
+				errorMsg = QErrorMessage(self)
+				errorMsg.showMessage("Should represent an actual file")
+			else:
+				d = DecryptFile(self.uploadPrivateKeyPath.text(), self.selectedFileName)
+				d.decrypt()				
+
+	def onActivated(self, text):
+		self.selectedFileName = text
 		
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
