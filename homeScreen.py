@@ -7,7 +7,8 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
 			QGridLayout, QLineEdit, 
 			QTextEdit, QLabel, 
 			QFileDialog, QAction, 
-			QMainWindow, QErrorMessage)
+			QMainWindow, QErrorMessage, 
+			QComboBox)
 from PyQt5.QtGui import (QFont, QIcon)
 from PyQt5.QtCore import QCoreApplication
 from encryptFile import EncryptFile
@@ -54,6 +55,8 @@ class HomeScreen(QWidget):
 
 		#GUI for Decryption
 		self.decryptLabel = QLabel("Choose which file to decrypt: ", self)
+		self.decryptFileList = QComboBox(self)
+		self.populateFileNames()
 		self.decryptBtn = QPushButton('Decrypt', self)
 		self.decryptBtn.setToolTip('Decrypt the selected file. ')
 		
@@ -76,7 +79,8 @@ class HomeScreen(QWidget):
 		self.gridLayout.addWidget(self.encryptBtn, 2, 3)
 		
 		self.gridLayout.addWidget(self.decryptLabel, 4, 0)
-		self.gridLayout.addWidget(self.decryptBtn, 4, 1)
+		self.gridLayout.addWidget(self.decryptFileList, 4, 1)
+		self.gridLayout.addWidget(self.decryptBtn, 4, 2)
 
 		self.gridLayout.addWidget(self.quitBtn, 5, 1)
 		
@@ -120,10 +124,6 @@ class HomeScreen(QWidget):
                 if fileObj[0]:
                         self.uploadPublicKeyPath.setText(fileObj[0])
 
-	#Event handler to select public key
-	def setPublicKeyPath(self):
-		print self.uploadPublicKeyPath.text()
-
 	#Event handler for encrypting file
 	def encryptAndUploadFile(self):
 		if self.uploadPublicKeyPath.text() == "" or self.uploadFilePath.text() == "":
@@ -153,8 +153,22 @@ class HomeScreen(QWidget):
 		if fileName in files:
 			return True
 		else:
-			return False	
+			return False
 
+	#Populate files that can be decrypted or deleted in the ComboBox
+	def populateFileNames(self):
+		workingDirectory = os.getcwd()
+		adminStorePath = os.path.join(workingDirectory, "AdminStore")
+		adminStoreFiles = os.path.join(adminStorePath, "files.txt")
+		
+		filesList = open(adminStoreFiles, "r")
+		fileLines = filesList.readlines()
+		
+		for fileName in fileLines:
+			fileName = fileName[:-1]
+			self.decryptFileList.addItem(fileName)
+			
+		
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	homeScreen = HomeScreen()
