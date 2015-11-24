@@ -55,6 +55,9 @@ class HomeScreen(QWidget):
 
 		#GUI for Decryption
 		self.decryptLabel = QLabel("Choose which file to decrypt: ", self)
+		self.uploadPrivateKeyPath = QLineEdit(self)
+		self.browsePrivateKeyBtn = QPushButton("Browse", self)
+		self.browsePrivateKeyBtn.clicked.connect(self.browsePrivateKeyBtnClick)
 		self.decryptFileList = QComboBox(self)
 		self.populateFileNames()
 		self.decryptBtn = QPushButton('Decrypt', self)
@@ -80,7 +83,9 @@ class HomeScreen(QWidget):
 		
 		self.gridLayout.addWidget(self.decryptLabel, 4, 0)
 		self.gridLayout.addWidget(self.decryptFileList, 4, 1)
-		self.gridLayout.addWidget(self.decryptBtn, 4, 2)
+		self.gridLayout.addWidget(self.browsePrivateKeyBtn, 4, 2)
+		self.gridLayout.addWidget(self.uploadPrivateKeyPath, 4, 3)
+		self.gridLayout.addWidget(self.decryptBtn, 4, 4)
 
 		self.gridLayout.addWidget(self.quitBtn, 5, 1)
 		
@@ -123,6 +128,13 @@ class HomeScreen(QWidget):
 
                 if fileObj[0]:
                         self.uploadPublicKeyPath.setText(fileObj[0])
+
+	#Event handler for browsing private key
+	def browsePrivateKeyBtnClick(self):
+		fileObj = QFileDialog.getOpenFileName(self, "Select Private Key", ".")
+
+		if fileObj[0]:
+			self.uploadPrivateKeyPath.setText(fileObj[0])
 
 	#Event handler for encrypting file
 	def encryptAndUploadFile(self):
