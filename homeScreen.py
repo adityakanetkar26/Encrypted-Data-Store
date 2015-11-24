@@ -40,8 +40,6 @@ class HomeScreen(QWidget):
 		self.uploadPublicKeyPath = QLineEdit(self)
 		self.browsePublicKeyBtn = QPushButton("Browse", self)
 		self.browsePublicKeyBtn.clicked.connect(self.browsePublicKeyBtnClick)
-		self.uploadPublicKeyBtn = QPushButton("Upload", self)
-		self.uploadPublicKeyBtn.clicked.connect(self.setPublicKeyPath)
 		
 		#GUI for selecting Plaintext File	
 		self.uploadFileLabel = QLabel("Encrypt and Upload", self)
@@ -71,7 +69,6 @@ class HomeScreen(QWidget):
 		self.gridLayout.addWidget(self.uploadPublicKeyLabel, 1, 0)
 		self.gridLayout.addWidget(self.browsePublicKeyBtn, 1, 1)
 		self.gridLayout.addWidget(self.uploadPublicKeyPath, 1, 2)
-		self.gridLayout.addWidget(self.uploadPublicKeyBtn, 1, 3)
 		
 		self.gridLayout.addWidget(self.uploadFileLabel, 2, 0)
 		self.gridLayout.addWidget(self.browseFileBtn, 2, 1)
