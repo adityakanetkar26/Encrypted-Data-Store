@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os, base64, uuid
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -20,10 +18,6 @@ class EncryptFile():
 	__ptChunks = None
 	__ctChunks = None
 	__publicKey = None
-
-	SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly'
-	CLIENT_SECRET_FILE = 'client_secret.json'
-	APPLICATION_NAME = 'Drive API Python Quickstart'
 
 	#Constructor
 	def __init__(self, fPath, keyPath):
@@ -90,7 +84,14 @@ class EncryptFile():
 		manifestLocation = os.path.join("AdminStore", "manifest.txt")
 		manifestPath = os.path.join(workingDirectory, manifestLocation)
 		manifestWrite = open(manifestPath, "a")
-		manifestWrite.write(self.__fileName + "\n")
+		manifestWrite.write(self.__fileName +  "\t" + str(self.__padCount) + "\n")
+
+		filesLocation = os.path.join("AdminStore", "files.txt")
+		filesPath = os.path.join(workingDirectory, filesLocation)
+		filesWrite = open(filesPath, "a")
+		filesWrite.write(self.__fileName)
+		filesWrite.write("\n")
+		filesWrite.close()
 
 		gauth = GoogleAuth()
 		gauth.LocalWebserverAuth()
@@ -116,7 +117,6 @@ class EncryptFile():
 			fileWrite.write(chunk["cipherText"] + "\n")
 		
 			fileWrite.close()
-			
 					
 			manifestWrite.write(hashObj.hexdigest() + "\t" + salt + "\n")
 

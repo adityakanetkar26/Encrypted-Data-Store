@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (QApplication, QWidget, 
 			QToolTip, QPushButton, 
@@ -134,10 +134,29 @@ class HomeScreen(QWidget):
 			errorMsg.showMessage("Both the values should represent actual files. ")
 		else:
 			print self.uploadFilePath
-			print self.uploadPublicKeyPath				
-			e = EncryptFile(self.uploadFilePath.text(), self.uploadPublicKeyPath.text())
-                	t = e.encrypt()
+			print self.uploadPublicKeyPath	
+			print self.checkIfSameFileNameExists()			
+			if self.checkIfSameFileNameExists():
+				errorMsg = QErrorMessage(self)
+				errorMsg.showMessage("File of the same name already exists. ")
+			else:
+				e = EncryptFile(self.uploadFilePath.text(), self.uploadPublicKeyPath.text())
+        	        	t = e.encrypt()
 	
+	#Check if file with the same name has already been encrypted
+	def checkIfSameFileNameExists(self):
+		fileName = os.path.basename(self.uploadFilePath.text()) + "\n"
+		workingDirectory = os.getcwd()
+		filesPath = os.path.join(workingDirectory, "AdminStore")
+		filesPath = os.path.join(filesPath, "files.txt")
+
+		filePtr = open(filesPath, "r")
+		files = filePtr.readlines()
+	
+		if fileName in files:
+			return True
+		else:
+			return False	
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
