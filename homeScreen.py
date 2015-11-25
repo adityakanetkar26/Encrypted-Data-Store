@@ -37,7 +37,7 @@ class HomeScreen(QWidget):
 		self.browsePublicKeyBtn.clicked.connect(self.browsePublicKeyBtnClick)
 		
 		#GUI for selecting Plaintext File	
-		self.uploadFileLabel = QLabel("Encrypt and Upload", self)
+		self.uploadFileLabel = QLabel("Encrypt and Upload: ", self)
 		self.uploadFilePath = QLineEdit(self)
 		self.browseFileBtn = QPushButton("Browse", self)
 		self.browseFileBtn.clicked.connect(self.browseFileBtnClick)
@@ -54,10 +54,19 @@ class HomeScreen(QWidget):
 		self.browsePrivateKeyBtn.clicked.connect(self.browsePrivateKeyBtnClick)
 		self.decryptFileList = QComboBox(self)
 		self.decryptFileList.activated[str].connect(self.onActivated)
-		self.populateFileNames()
+		self.populateFileNames("Decrypt")
 		self.decryptBtn = QPushButton('Decrypt', self)
 		self.decryptBtn.setToolTip('Decrypt the selected file. ')
 		self.decryptBtn.clicked.connect(self.downloadAndDecryptFile)
+
+		#GUI for Deletion of encrypted file
+		self.deleteLabel = QLabel("Choose which file to delete: ", self)
+		self.deleteFileList = QComboBox(self)
+		self.deleteFileList.activated[str].connect(self.onActivated)
+		self.populateFileNames("Delete")
+		self.deleteBtn = QPushButton("Delete", self)
+		self.deleteBtn.setToolTip("Delete the selected file. ")
+		self.deleteBtn.clicked.connect(self.deleteFile)
 		
 		#GUI for Quitting Application
 		self.quitBtn = QPushButton('Quit', self)
@@ -83,7 +92,12 @@ class HomeScreen(QWidget):
 		self.gridLayout.addWidget(self.uploadPrivateKeyPath, 4, 3)
 		self.gridLayout.addWidget(self.decryptBtn, 4, 4)
 
-		self.gridLayout.addWidget(self.quitBtn, 5, 1)
+		self.gridLayout.addWidget(self.deleteLabel, 5, 0)
+		self.gridLayout.addWidget(self.deleteFileList, 5, 1)
+		self.gridLayout.addWidget(self.deleteBtn, 5, 2)
+		
+
+		self.gridLayout.addWidget(self.quitBtn, 6, 1)
 		
 		self.setLayout(self.gridLayout)
 		self.setWindowState(QtCore.Qt.WindowMaximized)
@@ -161,18 +175,25 @@ class HomeScreen(QWidget):
 			return False
 
 	#Populate files that can be decrypted or deleted in the ComboBox
-	def populateFileNames(self):
+	def populateFileNames(self, strOperation):
 		workingDirectory = os.getcwd()
 		adminStorePath = os.path.join(workingDirectory, "AdminStore")
 		adminStoreFiles = os.path.join(adminStorePath, "files.txt")
 		
 		filesList = open(adminStoreFiles, "r")
 		fileLines = filesList.readlines()
+	
+		if strOperation == "Decrypt":			
+			self.decryptFileList.addItem("")
+		if strOperation == "Delete":
+			self.deleteFileList.addItem("")
 		
-		self.decryptFileList.addItem("")
 		for fileName in fileLines:
 			fileName = fileName[:-1]
-			self.decryptFileList.addItem(fileName)
+			if strOperation == "Decrypt":
+				self.decryptFileList.addItem(fileName)
+			if strOperation == "Delete":
+				self.deleteFileList.addItem(fileName)
 
 	#Event handler for downloading chunks and decrypting file
 	def downloadAndDecryptFile(self):
@@ -199,6 +220,10 @@ class HomeScreen(QWidget):
 	def populateDownloadFile(self):
 		if self.plainTextLocation != self.downloadLocation[0]:
 			os.rename(self.plainTextLocation, self.downloadLocation[0])
+
+	#Event handler for deleting an already encrypted file
+	def deleteFile(self):
+		print "Delete File Event Handler"
 		
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
