@@ -59,15 +59,6 @@ class HomeScreen(QWidget):
 		self.decryptBtn.setToolTip('Decrypt the selected file. ')
 		self.decryptBtn.clicked.connect(self.downloadAndDecryptFile)
 
-		#GUI for Deletion of encrypted file
-		self.deleteLabel = QLabel("Choose which file to delete: ", self)
-		self.deleteFileList = QComboBox(self)
-		self.deleteFileList.activated[str].connect(self.onActivated)
-		self.populateFileNames("Delete")
-		self.deleteBtn = QPushButton("Delete", self)
-		self.deleteBtn.setToolTip("Delete the selected file. ")
-		self.deleteBtn.clicked.connect(self.deleteFile)
-		
 		#GUI for Quitting Application
 		self.quitBtn = QPushButton('Quit', self)
 		self.quitBtn.setToolTip('Exit the application. ')
@@ -92,12 +83,7 @@ class HomeScreen(QWidget):
 		self.gridLayout.addWidget(self.uploadPrivateKeyPath, 4, 3)
 		self.gridLayout.addWidget(self.decryptBtn, 4, 4)
 
-		self.gridLayout.addWidget(self.deleteLabel, 5, 0)
-		self.gridLayout.addWidget(self.deleteFileList, 5, 1)
-		self.gridLayout.addWidget(self.deleteBtn, 5, 2)
-		
-
-		self.gridLayout.addWidget(self.quitBtn, 6, 1)
+		self.gridLayout.addWidget(self.quitBtn, 5, 1)
 		
 		self.setLayout(self.gridLayout)
 		self.setWindowState(QtCore.Qt.WindowMaximized)
@@ -221,10 +207,6 @@ class HomeScreen(QWidget):
 		if self.plainTextLocation != self.downloadLocation[0]:
 			os.rename(self.plainTextLocation, self.downloadLocation[0])
 
-	#Event handler for deleting an already encrypted file
-	def deleteFile(self):
-		print "Delete File Event Handler"
-		
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	homeScreen = HomeScreen()
