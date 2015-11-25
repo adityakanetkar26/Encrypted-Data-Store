@@ -55,7 +55,6 @@ class DecryptFile():
 			
 			j = 0
 			while j < len(splitDetails):
-				print splitDetails[j]
 				if self.__fileName in splitDetails[j]:
 					padCountStr = splitDetails[j + 1]
 					padCountStr = padCountStr[:-1]

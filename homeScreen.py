@@ -25,14 +25,6 @@ class HomeScreen(QWidget):
 
 	#Initial buttons that should be present on the screen when the application is started. 
 	def initUI(self):
-		filePath = "/home/aditya/SpcPrblm/Encrypted-Data-Store/TestFiles/Stats.txt"
-		publicKeyPath = "/home/aditya/SpcPrblm/Encrypted-Data-Store/TestFiles/public_key.pem"
-		privateKeyPath = "/home/aditya/SpcPrblm/Encrypted-Data-Store/TestFiles/private_key.pem"
-		
-		#e = EncryptFile(filePath, publicKeyPath)
-		#t = e.encrypt()
-		#d = DecryptFile(privateKeyPath, t)
-		#d.decrypt()
 		
 		self.setWindowTitle("Encrypted Data Store")
 
@@ -146,9 +138,6 @@ class HomeScreen(QWidget):
 			errorMsg = QErrorMessage(self)
 			errorMsg.showMessage("Both the values should represent actual files. ")
 		else:
-			print self.uploadFilePath
-			print self.uploadPublicKeyPath	
-			print self.checkIfSameFileNameExists()			
 			if self.checkIfSameFileNameExists():
 				errorMsg = QErrorMessage(self)
 				errorMsg.showMessage("File of the same name already exists. ")
@@ -208,11 +197,6 @@ class HomeScreen(QWidget):
 
 	#Moving the downloaded plaintext file to the downloaded location
 	def populateDownloadFile(self):
-		print "PlainText Location"
-		print self.plainTextLocation
-		print "Download Location"
-		print self.downloadLocation
-	
 		if self.plainTextLocation != self.downloadLocation[0]:
 			os.rename(self.plainTextLocation, self.downloadLocation[0])
 		
