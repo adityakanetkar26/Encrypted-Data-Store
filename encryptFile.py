@@ -34,7 +34,6 @@ class EncryptFile():
 		self.__splitFile()
 		self.__encryptChunks()
 		self.__populateFilesAndManifest()
-		self.__uploadFilesToGoogleDrive()
 		return self.__ctChunks
 
 	#Private method to read the file		
@@ -94,9 +93,9 @@ class EncryptFile():
 		filesWrite.write("\n")
 		filesWrite.close()
 
-		#gauth = GoogleAuth()
-		#gauth.LocalWebserverAuth()
-		#drive = GoogleDrive(gauth)
+		gauth = GoogleAuth()
+		gauth.LocalWebserverAuth()
+		drive = GoogleDrive(gauth)
 		
 		for chunk in self.__ctChunks:
 			salt = base64.urlsafe_b64encode(uuid.uuid4().bytes)		
@@ -119,34 +118,15 @@ class EncryptFile():
 		
 			fileWrite.close()
 					
-			manifestWrite.write(hashObj.hexdigest() + "\t" + salt + "\n")
+			manifestWrite.write(hashObj.hexdigest() + "\t" + salt + "\t")
 
-			#file = drive.CreateFile({'title': encFileName})
-			#file.SetContentFile(encFilePath)
-			#file.Upload()
+			uploadFile = drive.CreateFile({'title': encFileName})
+			uploadFile.SetContentFile(encFilePath)
+			uploadFile.Upload()
+		
+			manifestWrite.write(uploadFile["id"] + "\n")
 
-			#os.remove(encFilePath)
+			os.remove(encFilePath)
 			
 		manifestWrite.write("\n")
 		manifestWrite.close()
-
-	#Method to upload files to Google Drive
-	def __uploadFilesToGoogleDrive(self):
-		workingDirectory = os.getcwd()
-		storeDirectory = os.path.join(workingDirectory, "Store")
-		
-		encFiles = os.listdir(storeDirectory)
-
-		gauth = GoogleAuth()
-		gauth.LocalWebserverAuth()
-		drive = GoogleDrive(gauth)
-				
-		for encFileName in encFiles:
-			encFilePath = os.path.join(storeDirectory, encFileName)
-			if os.path.isfile(encFilePath):
-				uploadFile = drive.CreateFile({"title": encFileName})
-				uploadFile.SetContentFile(encFilePath)
-				uploadFile.Upload()
-				os.remove(encFilePath)
-						
-		

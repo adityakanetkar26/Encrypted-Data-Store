@@ -7,7 +7,7 @@ class DecryptFile():
 	
 	#Private variables
 	__fileName = None
-	__chunkFileNames = None
+	__chunkDetails = None
 	__encChunks = None
 	__privateKey = None
 	__ptChunks = None
@@ -20,11 +20,13 @@ class DecryptFile():
 		self.__fileName = fileName
 		self.__privateKey = RSA.importKey(open(privateKeyPath).read())
 		print self.__fileName
-		self.__chunkFileNames = []
+		self.__chunkDetails = []
 	
 	#Decryption method
 	def decrypt(self):
 		self.__getChunkInfoFromManifest()
+		#self.__downloadChunksFromGoogleDrive()
+
 		#self.__decryptFile()
 
 	#Get information about chunk names from the manifest
@@ -60,9 +62,18 @@ class DecryptFile():
 
 		while i < len(fileDetails) and fileDetails[i] != "\n":
 			splitDetails = fileDetails[i].split("\t")
-			self.__chunkFileNames.append(splitDetails[0] + ".txt")
+			chunkDetails = {}
+			chunkDetails["FileName"] = splitDetails[0] + ".txt"
+			chunkDetails["chunkId"] = splitDetails[2]	
+			self.__chunkDetails.append(chunkDetails)
 			i = i + 1
-		
+
+		print self.__chunkDetails
+
+	#Method to download chunks from Google Drive
+	#def __downloadChunksFromGoogleDrive():
+				
+			
 	#Method for decryption of chunks
 	def __decryptFile(self):
 		for ctChunk in self.__encChunks:
