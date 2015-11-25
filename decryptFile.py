@@ -3,6 +3,10 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto import Random
 
+#Imports for Google Drive Authentication
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+
 class DecryptFile():
 	
 	#Private variables
@@ -11,23 +15,28 @@ class DecryptFile():
 	__encChunks = None
 	__privateKey = None
 	__ptChunks = None
+	__padCount = 0
 	__ptString = ""
+	__plainTextPath = None
 
 
 	#Constructor
 	def __init__(self, privateKeyPath, fileName):
-		#self.__encChunks = encChunks
 		self.__fileName = fileName
 		self.__privateKey = RSA.importKey(open(privateKeyPath).read())
-		print self.__fileName
 		self.__chunkDetails = []
+		self.__encChunks = []
+		self.__padCount = 0
 	
 	#Decryption method
 	def decrypt(self):
 		self.__getChunkInfoFromManifest()
-		#self.__downloadChunksFromGoogleDrive()
-
-		#self.__decryptFile()
+		self.__downloadChunksFromGoogleDrive()
+		self.__extractDataFromDownloadedFiles()
+		self.__decryptFile()
+		self.__removePadding()
+		self.__populatePlainTextFile()
+		return self.__plainTextPath
 
 	#Get information about chunk names from the manifest
 	def __getChunkInfoFromManifest(self):
@@ -64,15 +73,54 @@ class DecryptFile():
 			splitDetails = fileDetails[i].split("\t")
 			chunkDetails = {}
 			chunkDetails["FileName"] = splitDetails[0] + ".txt"
-			chunkDetails["chunkId"] = splitDetails[2]	
+			chunkId = splitDetails[2]
+			chunkId = chunkId[:-1]
+			chunkDetails["chunkId"] = chunkId	
 			self.__chunkDetails.append(chunkDetails)
 			i = i + 1
 
-		print self.__chunkDetails
-
 	#Method to download chunks from Google Drive
-	#def __downloadChunksFromGoogleDrive():
-				
+	def __downloadChunksFromGoogleDrive(self):
+		gauth = GoogleAuth()
+		gauth.LocalWebserverAuth()
+		drive = GoogleDrive(gauth)
+
+		workingDirectory = os.getcwd()
+
+		for chunkInfo in self.__chunkDetails:
+			downloadFile = drive.CreateFile({"id": chunkInfo["chunkId"]})
+			downloadFile.GetContentFile(chunkInfo["FileName"])
+			
+			srcPath = os.path.join(workingDirectory, chunkInfo["FileName"])
+			destDirPath = os.path.join(workingDirectory, "Store")
+			destPath = os.path.join(destDirPath, chunkInfo["FileName"])
+			os.rename(srcPath, destPath)				
+
+	#Method to retrieve encrypted data from the downloaded chunks
+	def __extractDataFromDownloadedFiles(self):
+		workingDirectory = os.getcwd()
+		storePath = os.path.join(workingDirectory, "Store")
+		for chunkInfo in self.__chunkDetails:
+			encFilePath = os.path.join(storePath, chunkInfo["FileName"])
+			fileReader = open(encFilePath, "r")
+			fileLines = fileReader.readlines()
+			
+			chunkInfo = {}
+			i = 0
+			while i < len(fileLines):
+				if "IV\n" in fileLines[i]:
+					iv = fileLines[i + 1]
+					chunkInfo["iv"] = iv[:-1]
+				if "Encrypted Session Key\n" in fileLines[i]:
+					sessKey = fileLines[i + 1]
+					chunkInfo["encSessKey"] = sessKey[:-1]
+				if "CipherText\n" in fileLines[i]:
+					cipherText = fileLines[i + 1]
+					chunkInfo["cipherText"] = cipherText[:-1]
+				i = i + 2	
+			self.__encChunks.append(chunkInfo)
+			fileReader.close()
+			os.remove(encFilePath)
 			
 	#Method for decryption of chunks
 	def __decryptFile(self):
@@ -88,4 +136,17 @@ class DecryptFile():
 			plainText = cipher.decrypt(cipherText)
 			self.__ptString = self.__ptString + plainText
 		
-		print self.__ptString
+	#Method to remove extra padding
+	def __removePadding(self):
+		if self.__padCount != 0:
+			self.__ptString = self.__ptString[:-1 * self.__padCount]
+
+	#Method to populate plaintext file
+	def __populatePlainTextFile(self):
+		workingDirectory = os.getcwd()
+		plainTextDir = os.path.join(workingDirectory, "Store")
+		self.__plainTextPath = os.path.join(plainTextDir, self.__fileName)
+		plainTextFile = open(self.__plainTextPath, "w")
+		plainTextFile.write(self.__ptString)
+		plainTextFile.close()
+

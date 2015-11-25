@@ -125,7 +125,7 @@ class EncryptFile():
 			uploadFile.Upload()
 		
 			manifestWrite.write(uploadFile["id"] + "\n")
-
+			
 			os.remove(encFilePath)
 			
 		manifestWrite.write("\n")

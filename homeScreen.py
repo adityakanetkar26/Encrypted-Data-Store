@@ -14,6 +14,8 @@ from PyQt5.QtCore import QCoreApplication
 from encryptFile import EncryptFile
 from decryptFile import DecryptFile
 
+from gi.repository import GLib
+
 class HomeScreen(QWidget):
 
 	#Constructor
@@ -195,10 +197,24 @@ class HomeScreen(QWidget):
 				errorMsg.showMessage("Should represent an actual file")
 			else:
 				d = DecryptFile(self.uploadPrivateKeyPath.text(), self.selectedFileName)
-				d.decrypt()				
-
+				self.plainTextLocation = d.decrypt()
+				downloadDir = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD)
+				self.downloadLocation = QFileDialog.getSaveFileName(self, "Save File", downloadDir)
+				self.populateDownloadFile()
+	
+	#Populate the selected file name
 	def onActivated(self, text):
 		self.selectedFileName = text
+
+	#Moving the downloaded plaintext file to the downloaded location
+	def populateDownloadFile(self):
+		print "PlainText Location"
+		print self.plainTextLocation
+		print "Download Location"
+		print self.downloadLocation
+	
+		if self.plainTextLocation != self.downloadLocation[0]:
+			os.rename(self.plainTextLocation, self.downloadLocation[0])
 		
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
