@@ -13,20 +13,22 @@ class EncryptFile():
 	#Private variables
 	__filePath = None
 	__fileName = None
-	__padCount = 0
+	__lastBlockLength = 0
 	__ptString = None
 	__ptChunks = None
 	__ctChunks = None
 	__publicKey = None
+	__chunkSize = 0
 
 	#Constructor
 	def __init__(self, fPath, keyPath):
 		self.__filePath = fPath
 		self.__fileName = os.path.basename(fPath)
-		self.__padCount = 0
+		self.__lastBlockLength = 0
 		self.__ptChunks = []
 		self.__ctChunks = []
-		self.__publicKey = RSA.importKey(open(keyPath).read())	
+		self.__publicKey = RSA.importKey(open(keyPath).read())
+		self.__chunkSize = 64	
 	
 	#Encryption Method
 	def encrypt(self):
@@ -43,23 +45,21 @@ class EncryptFile():
 
 	#Pad Zeros + Split file into chunks
 	def __splitFile(self):
-		self.__padCount = len(self.__ptString) % 64
+		self.__lastBlockLength = len(self.__ptString) % self.__chunkSize
 		i = 0
-		while(i != 64 - self.__padCount):
+		while(i != self.__chunkSize - self.__lastBlockLength):
 			self.__ptString = self.__ptString + "0"
 			i = i + 1
 		
-		self.__splitStringBy64()
+		self.__splitStringByChunkSize()
 
-	#Split a string into 64 byte chunks
-	def __splitStringBy64(self):
+	#Split a string into chunks determined by the chunk size
+	def __splitStringByChunkSize(self):
 		tempStr = self.__ptString
 		while tempStr:
-			self.__ptChunks.append(tempStr[:64])
-			tempStr = tempStr[64:]
-		print "PLaintext Chunks"
-		print self.__ptChunks
-
+			self.__ptChunks.append(tempStr[:self.__chunkSize])
+			tempStr = tempStr[self.__chunkSize:]
+	
 	#Method to encrypt chunks
 	def __encryptChunks(self):
 		
@@ -86,7 +86,7 @@ class EncryptFile():
 		manifestLocation = os.path.join("AdminStore", "manifest.txt")
 		manifestPath = os.path.join(workingDirectory, manifestLocation)
 		manifestWrite = open(manifestPath, "a")
-		manifestWrite.write(self.__fileName +  "\t" + str(64 - self.__padCount) + "\n")
+		manifestWrite.write(self.__fileName +  "\t" + str(self.__chunkSize - self.__lastBlockLength) + "\n")
 
 		filesLocation = os.path.join("AdminStore", "files.txt")
 		filesPath = os.path.join(workingDirectory, filesLocation)
