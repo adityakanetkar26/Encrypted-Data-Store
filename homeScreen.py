@@ -54,7 +54,7 @@ class HomeScreen(QWidget):
 		self.browsePrivateKeyBtn.clicked.connect(self.browsePrivateKeyBtnClick)
 		self.decryptFileList = QComboBox(self)
 		self.decryptFileList.activated[str].connect(self.onActivated)
-		self.populateFileNames("Decrypt")
+		self.populateFileNames(True)
 		self.decryptBtn = QPushButton('Decrypt', self)
 		self.decryptBtn.setToolTip('Decrypt the selected file. ')
 		self.decryptBtn.clicked.connect(self.downloadAndDecryptFile)
@@ -144,6 +144,10 @@ class HomeScreen(QWidget):
 			else:
 				e = EncryptFile(self.uploadFilePath.text(), self.uploadPublicKeyPath.text())
         	        	t = e.encrypt()
+		
+		self.uploadPublicKeyPath.clear()
+		self.uploadFilePath.clear()
+		self.populateFileNames(False)		
 	
 	#Check if file with the same name has already been encrypted
 	def checkIfSameFileNameExists(self):
@@ -160,8 +164,8 @@ class HomeScreen(QWidget):
 		else:
 			return False
 
-	#Populate files that can be decrypted or deleted in the ComboBox
-	def populateFileNames(self, strOperation):
+	#Populate files that can be decrypted in the ComboBox
+	def populateFileNames(self, addBlank):
 		workingDirectory = os.getcwd()
 		adminStorePath = os.path.join(workingDirectory, "AdminStore")
 		adminStoreFiles = os.path.join(adminStorePath, "files.txt")
@@ -169,18 +173,13 @@ class HomeScreen(QWidget):
 		filesList = open(adminStoreFiles, "r")
 		fileLines = filesList.readlines()
 	
-		if strOperation == "Decrypt":			
+		if addBlank == True:
 			self.decryptFileList.addItem("")
-		if strOperation == "Delete":
-			self.deleteFileList.addItem("")
 		
 		for fileName in fileLines:
 			fileName = fileName[:-1]
-			if strOperation == "Decrypt":
-				self.decryptFileList.addItem(fileName)
-			if strOperation == "Delete":
-				self.deleteFileList.addItem(fileName)
-
+			self.decryptFileList.addItem(fileName)
+		
 	#Event handler for downloading chunks and decrypting file
 	def downloadAndDecryptFile(self):
 
@@ -197,7 +196,9 @@ class HomeScreen(QWidget):
 				downloadDir = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD)
 				self.downloadLocation = QFileDialog.getSaveFileName(self, "Save File", downloadDir)
 				self.populateDownloadFile()
-	
+		
+		self.uploadPrivateKeyPath.clear()
+
 	#Populate the selected file name
 	def onActivated(self, text):
 		self.selectedFileName = text
