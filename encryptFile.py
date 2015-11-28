@@ -57,6 +57,8 @@ class EncryptFile():
 		while tempStr:
 			self.__ptChunks.append(tempStr[:64])
 			tempStr = tempStr[64:]
+		print "PLaintext Chunks"
+		print self.__ptChunks
 
 	#Method to encrypt chunks
 	def __encryptChunks(self):
@@ -84,7 +86,7 @@ class EncryptFile():
 		manifestLocation = os.path.join("AdminStore", "manifest.txt")
 		manifestPath = os.path.join(workingDirectory, manifestLocation)
 		manifestWrite = open(manifestPath, "a")
-		manifestWrite.write(self.__fileName +  "\t" + str(self.__padCount) + "\n")
+		manifestWrite.write(self.__fileName +  "\t" + str(64 - self.__padCount) + "\n")
 
 		filesLocation = os.path.join("AdminStore", "files.txt")
 		filesPath = os.path.join(workingDirectory, filesLocation)
