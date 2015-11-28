@@ -1,4 +1,4 @@
-import os, base64
+import os, base64, time
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto import Random
@@ -32,14 +32,22 @@ class DecryptFile():
 	def decrypt(self):
 		self.__getChunkInfoFromManifest()
 		self.__downloadChunksFromGoogleDrive()
+
+		beforeDecryptBegins = time.time()
+
 		self.__extractDataFromDownloadedFiles()
 		self.__decryptFile()
 		self.__removePadding()
 		self.__populatePlainTextFile()
+
+		afterDecryptEnds = time.time()
+		print "Decryption Time: " + str(afterDecryptEnds - beforeDecryptBegins)
 		return self.__plainTextPath
 
 	#Get information about chunk names from the manifest
 	def __getChunkInfoFromManifest(self):
+		beforeChunkInfo = time.time()
+
 		workingDirectory = os.getcwd()
 		manifestDirectory = os.path.join(workingDirectory, "AdminStore")
 		manifestPath = os.path.join(manifestDirectory, "manifest.txt")
@@ -77,12 +85,17 @@ class DecryptFile():
 			chunkDetails["chunkId"] = chunkId	
 			self.__chunkDetails.append(chunkDetails)
 			i = i + 1
-
+		
+		afterChunkInfo = time.time()
+		print "Time to extract chunk info: " + str(afterChunkInfo - beforeChunkInfo)
+	
 	#Method to download chunks from Google Drive
 	def __downloadChunksFromGoogleDrive(self):
 		gauth = GoogleAuth()
 		gauth.LocalWebserverAuth()
 		drive = GoogleDrive(gauth)
+
+		beforeDownloadTime = time.time()
 
 		workingDirectory = os.getcwd()
 
@@ -93,7 +106,11 @@ class DecryptFile():
 			srcPath = os.path.join(workingDirectory, chunkInfo["FileName"])
 			destDirPath = os.path.join(workingDirectory, "Store")
 			destPath = os.path.join(destDirPath, chunkInfo["FileName"])
-			os.rename(srcPath, destPath)				
+			os.rename(srcPath, destPath)
+
+		afterDownloadTime = time.time()
+
+		print "Difference: Time to download: " + str(afterDownloadTime - beforeDownloadTime)				
 
 	#Method to retrieve encrypted data from the downloaded chunks
 	def __extractDataFromDownloadedFiles(self):

@@ -1,4 +1,4 @@
-import os, base64, uuid
+import os, base64, uuid, time
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto import Random
@@ -32,11 +32,13 @@ class EncryptFile():
 	
 	#Encryption Method
 	def encrypt(self):
+		beforeEncTime = time.time()
 		self.__readFile()
 		self.__splitFile()
 		self.__encryptChunks()
+		afterEncTime = time.time()
+		print "Difference: Time for Encryption: " + str(afterEncTime - beforeEncTime)
 		self.__populateFilesAndManifest()
-		return self.__ctChunks
 
 	#Private method to read the file		
 	def __readFile(self):
@@ -98,6 +100,8 @@ class EncryptFile():
 		gauth = GoogleAuth()
 		gauth.LocalWebserverAuth()
 		drive = GoogleDrive(gauth)
+
+		beforeUploadTime = time.time()
 		
 		for chunk in self.__ctChunks:
 			salt = base64.urlsafe_b64encode(uuid.uuid4().bytes)		
@@ -129,6 +133,9 @@ class EncryptFile():
 			manifestWrite.write(uploadFile["id"] + "\n")
 			
 			os.remove(encFilePath)
+
+		afterUploadTime = time.time()
+		print "Difference: Time to upload: " + str(afterUploadTime - beforeUploadTime)
 			
 		manifestWrite.write("\n")
 		manifestWrite.close()
