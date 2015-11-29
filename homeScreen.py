@@ -54,7 +54,7 @@ class HomeScreen(QWidget):
 		self.browsePrivateKeyBtn.clicked.connect(self.browsePrivateKeyBtnClick)
 		self.decryptFileList = QComboBox(self)
 		self.decryptFileList.activated[str].connect(self.onActivated)
-		self.populateFileNames(True)
+		self.populateFileNames()
 		self.decryptBtn = QPushButton('Decrypt', self)
 		self.decryptBtn.setToolTip('Decrypt the selected file. ')
 		self.decryptBtn.clicked.connect(self.downloadAndDecryptFile)
@@ -147,7 +147,7 @@ class HomeScreen(QWidget):
 		
 		self.uploadPublicKeyPath.clear()
 		self.uploadFilePath.clear()
-		self.populateFileNames(False)		
+		self.populateFileNames()		
 	
 	#Check if file with the same name has already been encrypted
 	def checkIfSameFileNameExists(self):
@@ -165,16 +165,16 @@ class HomeScreen(QWidget):
 			return False
 
 	#Populate files that can be decrypted in the ComboBox
-	def populateFileNames(self, addBlank):
+	def populateFileNames(self):
 		workingDirectory = os.getcwd()
 		adminStorePath = os.path.join(workingDirectory, "AdminStore")
 		adminStoreFiles = os.path.join(adminStorePath, "files.txt")
+
+		self.decryptFileList.clear()
+		self.decryptFileList.addItem("")
 		
 		filesList = open(adminStoreFiles, "r")
 		fileLines = filesList.readlines()
-	
-		if addBlank == True:
-			self.decryptFileList.addItem("")
 		
 		for fileName in fileLines:
 			fileName = fileName[:-1]
